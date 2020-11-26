@@ -5,6 +5,7 @@ import { Control, LocalForm, Errors } from 'react-redux-form';
 import { Link } from 'react-router-dom';
 import { Loading } from './LoadingComponent';
 import { baseUrl } from '../shared/baseUrl';
+import { FadeTransform, Fade, Stagger } from 'react-animation-components';
 
 
 const required = (val) => val && val.length;
@@ -28,7 +29,7 @@ class CommentForm extends Component {
     
     handleSubmit = (values) => {
         console.log('Current State is: ' + JSON.stringify(values));
-        this.props.addComment(this.props.dishId, values.rating, values.YourName, values.comment);    
+        this.props.postComment(this.props.dishId, values.rating, values.YourName, values.comment);    
     }
     
     render() {
@@ -99,6 +100,11 @@ class CommentForm extends Component {
 
 const RenderMenu = ({dish}) => {
     return (
+        <FadeTransform
+                in
+                transformProps={{
+                    exitTransform: 'scale(0.5) translateY(-50%)'
+                }}>
     <Card>
         <CardImg src={baseUrl + dish.image} alt={dish.name} />
             <CardBody>
@@ -106,30 +112,36 @@ const RenderMenu = ({dish}) => {
                   <CardText>{dish.description}</CardText>
             </CardBody>
     </Card>
+    </FadeTransform>
+
     );
 }
 
-const RenderComments = ({ comments, addComment, dishId }) => {
+const RenderComments = ({ comments, postComment, dishId }) => {
     let options = { year: "numeric", month: "short", day: "numeric" };
+
     const com = comments.map(comment => {
         return (
+
             <React.Fragment>
             <li key={comment.id} className="mb-2">{comment.comment}</li>
               <li>
                 -- {comment.author}{" "}
                 {new Date(comment.date).toLocaleDateString("en-US", options)}
               </li>
+
             </React.Fragment>
+
             );
         })
-    
+
     if (comments != null) {
           return (
             <React.Fragment>
                 <ul  className="list-unstyled">
                     {com}
                 </ul>
-                <CommentForm dishId={dishId} addComment={addComment} />    
+                <CommentForm dishId={dishId} postComment={postComment} />    
             </React.Fragment>
 
           );
@@ -184,7 +196,7 @@ const DishDetail = (props) => {
                             <div className="col-12 col-md-5 m-1">
                                 <h4>Comments</h4>
                                 <RenderComments comments={props.comments}
-                                    addComment={props.addComment}
+                                    postComment={props.postComment}
                                     dishId={props.dish.id}
                                   />
                             </div>
